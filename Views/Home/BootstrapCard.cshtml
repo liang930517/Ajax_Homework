@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Bootstrap Card";
+}
+
+<h3>作業二 引用 datas/Travel.js 中的JSON，讀取資料後，透過 bootstrap cards component 顯示在網頁上</h3>
+
+<div class="container-fluid">
+    <div class="row justify-content-center" id="cardContainer">
+        <!-- 這裡將動態生成卡片 -->
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="~/datas/travel.js"></script>
+
+<script>
+        for (var i = 0; i < spots.CommonFormat.Section.length; i++) {
+
+            var section = spots.CommonFormat.Section[i];
+
+            var card = document.createElement('div');
+            card.classList.add('col-xl-3', 'col-lg-4' , 'col-md-6', 'col-12');
+
+            var cardHtml = `
+                    <div class="col-auto mb-3">
+                                <div class="card" style="width: 18rem;">
+                            <img src="${section.file.img[0].text}" class="card-img-top" alt="${section.stitle}">
+                            <div class="card-body">
+                                <h5 class="card-title">${section.stitle}</h5>
+                                <p class="card-text">${section.xbody}</p>
+                            </div>
+                        </div>
+                                </div>
+                    `;
+
+            card.innerHTML = cardHtml;
+            cardContainer.appendChild(card);
+        }
+</script>
+}

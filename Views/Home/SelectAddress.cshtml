@@ -1,0 +1,63 @@
+﻿
+@{
+    ViewData["Title"] = "Address";
+}
+
+<h3>
+    作業四 const cities = ["台北市","新北市","桃園市","台中市", "台南市","高雄市"]
+    將cities城市資料放進select標籤中
+    使用者選取了某個城市後，將選到的城市顯示在span標籤中
+</h3>
+
+<hr />
+<span id="chooseAddress"></span>
+    <select class="form-select mt-4" id="selectAddress"></select>
+
+
+    @section Styles {
+    <style>
+        #chooseAddress {
+        color: red;
+        }
+    </style>
+    }
+
+
+@section Scripts {
+    <script>
+        const cities = ["台北市", "新北市", "桃園市", "台中市", "台南市", "高雄市"];
+
+        //========初始化選擇的城市
+        const initialCityIndex = 0; // 選擇初始城市的索引，例如選擇台北市
+        const initialAddressName = cities[initialCityIndex];
+        $('#chooseAddress').text(initialAddressName);
+
+        //========將cities城市資料放進select標籤中（原本的寫法）＝＞改寫成下面的
+        // $.each(cities, function (key, value) {
+        //     $('#selectAddress')
+        //         .append($("<option></option>")
+        //             .attr("value", key)
+        //             .text(value));
+        // });
+
+        //========改寫成使用Document Fragment(節點)的形式，這樣的做法可以減少DOM 操作，提高性能
+        const docFrag = $(document.createDocumentFragment()); //建立一個空元素(容器) //這是js的寫法在這裡加上$()包起來就會是jq的物件
+        const selectAddress = $('#selectAddress');
+
+        $.each(cities, function (key, value) {
+            const option = $("<option></option>")
+                .attr("value", key)
+                .text(value);
+            docFrag.append(option[0]);
+        });
+        selectAddress.append(docFrag);
+
+        //========使用者選取了某個城市後，將選到的城市顯示在span標籤中
+        $('#selectAddress').on('change', function (){
+            var num = this.value; //抓到option的value
+            var addressName = cities[num];
+            $('#chooseAddress').text(addressName);
+        })
+    </script>
+}
+

@@ -1,0 +1,80 @@
+﻿
+@{
+    ViewData["Title"] = "First";
+}
+
+<h1>AJAX練習</h1>
+<button id="btnClick" class="btn btn-primary">Click</button>
+<button id="btnCancel" class="btn btn-danger">Cancel</button>
+<img src="~/images/walk.gif" id="loading" />
+<div class="alert alert-info" id="div1"></div>
+
+
+@section Styles {
+    <style>
+        #loading {
+    display: none;
+    }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        const btn_click = document.querySelector('#btnClick');
+        const btn_cancel = document.querySelector('#btnCancel');
+        const myDiv = document.querySelector('#div1');
+        const imgWalk = document.querySelector('#loading');
+
+        //步驟一
+        const xhr = new XMLHttpRequest();
+
+        //=========防止使用者重複點擊按鈕導致Request多次
+        xhr.addEventListener('loadstart', ()=> {
+            btn_click.setAttribute('disabled', 'disabled');
+            btn_click.textContent = "執行中....";
+            imgWalk.style.display = "inline";
+            myDiv.innerHTML += `<h3>ajax開始</h3>`;
+        })
+
+                xhr.addEventListener('loadend', () => {
+            btn_click.removeAttribute('disabled');
+            btn_click.textContent = "Click";
+            imgWalk.style.display = "none";
+            myDiv.innerHTML += `<h3>ajax結束</h3>`;
+        })
+        //=========防止使用者重複點擊按鈕導致Request多次
+
+        //timeout事件會根據timeout屬性的設定來觸發
+        xhr.addEventListener('timeout', () => {
+            myDiv.innerHTML += `<h3>伺服器忙碌中，請稍後再來</h3>`
+        })
+
+        //abort 事件是abort()方法被執行時會觸發
+        xhr.addEventListener('abort',()=> {
+        myDiv.innerHTML += `<h3>您停止了程式的執行</h3>`
+        })
+
+        //=========取消ajax事件
+        btn_cancel.addEventListener('click',()=>{
+            xhr.abort();//停止 Ajax 程式的執行
+        })
+
+        //按下按鈕事件
+        btn_click.addEventListener('click', () => {
+            //myDiv.innerHTML = "Button Click";
+
+            //步驟二：對伺服器發出要求(Request)
+            xhr.open('GET', '/api/index'); //跟api/index要資料
+            xhr.timeout = 3000; //與上面的timeout連接
+            xhr.send();
+
+            //步驟三：接收伺服器回傳的資料
+            xhr.addEventListener('load', ()=> {
+            const data = xhr.responseText;
+            myDiv.innerHTML = `<h3>${data}</h3>`;
+            })
+        })
+    </script>
+}
+
+

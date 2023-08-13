@@ -1,0 +1,79 @@
+﻿@{
+    ViewData["Title"] = "AutoComplete";
+}
+
+<h3>作業七 AutoComplete的功能，使用fetch()及 async await 的技術</h3>
+<p>可輸入臺灣路名其中一個字看實際結果</p>
+
+@* 參考資料 https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_autocomplete *@
+
+<div class="autocomplete">
+    <input type="text" id="searchTerm" placeholder="請輸入路名" autocomplete="off">
+    <div id="autoCompleteResults" class="autocomplete-items"></div>
+</div>
+
+@section Styles {
+    <style>
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+         .autocomplete-item:hover {
+             background-color: #e9e9e9;
+         }
+    </style>
+}
+
+
+
+@section Scripts {
+    <script>
+        const searchTermInput = document.getElementById('searchTerm');
+        const autoCompleteResults = document.getElementById('autoCompleteResults');
+
+        searchTermInput.addEventListener('input', async () => {
+            const searchTerm = searchTermInput.value;
+
+            if (searchTerm.length > 0) {
+                const response = await fetch(`/api/GetAutoCompleteData?searchTerm=${searchTerm}`);
+                const data = await response.json();
+
+                autoCompleteResults.innerHTML = '';
+                data.forEach(result => {
+                    const item = document.createElement('div');
+                    item.textContent = result;
+                    item.classList.add('autocomplete-item');
+                    item.addEventListener('click', () => {
+                        searchTermInput.value = result;
+                        autoCompleteResults.innerHTML = '';
+                    });
+                    autoCompleteResults.appendChild(item);
+                });
+                autoCompleteResults.style.display = 'block';
+            } else {
+                autoCompleteResults.style.display = 'none';
+            }
+        });
+
+        // 在點擊輸入框外部時隱藏AutoComplete結果
+        document.addEventListener('click', event => {
+            if (!searchTermInput.contains(event.target)) {
+                autoCompleteResults.style.display = 'none';
+            }
+        });
+    </script>
+}

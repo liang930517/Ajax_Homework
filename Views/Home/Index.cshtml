@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<!--跟shared底下的_Layout.cshtml => head標籤裡複製=>RenderSectionAsync("Styles", required: false) / 名稱相同-->
+@section Styles {
+<style>
+    p {
+    background-color: yellow;
+    }
+</style>
+}
+
+<div class="text-center">
+    <h3>作業一：改用 jQuery 完成JSON資料讀取並顯示在表格中的練習</h3>
+    <table id="empTable" class="table table-bordered">
+        <thead>
+            <th>姓名</th>
+            <th>年資</th>
+            <th>薪水</th>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<!--跟shared底下的_Layout.cshtml => RenderSectionAsync("Scripts", required: false) / 名稱相同-->
+@section Scripts {
+<script>
+        //作業一：改用 jQuery 完成JSON資料讀取並顯示在表格中的練習
+        const emp = {
+            "employees": [
+                { "name": "Tom", "workYears": 3, "salary": 35000 },
+                { "name": "Jack", "workYears": 5, "salary": 40000 },
+                { "name": "Mary", "workYears": 7, "salary": 45000 }
+            ]
+        };
+
+        //===========將資料顯示在表格上
+        const datas = emp.employees.map(employee => {
+            const { name, workYears, salary } = employee;
+            return (
+            `<tr>
+                                        <td>${name}</td>
+                                        <td>${workYears}</td>
+                                                <td>${salary}</td>
+            </tr>`
+            )
+        })
+
+        //jQuery寫法1
+        $(document).ready(function () {
+            const tableBody = $('#empTable>tbody'); // 假設你有一個id為employeeTable的<table>元素
+            tableBody.append(datas.join(''));
+        });
+
+        //jQuery寫法2
+        //$('#empTable>tbody').html(datas);
+</script>
+}

@@ -1,0 +1,87 @@
+﻿
+@{
+    ViewData["Title"] = "Address";
+}
+
+
+<h3>作業六 改用fetch() 加上 async await 來完成住址連動的功能</h3>
+<select id="selectCity"></select>
+<select id="selectDistrict"></select>
+<select id="selectRoad"></select>
+<div id="showDiv" class="alert alert-info"></div>
+
+@section Scripts {
+    <script>
+        const selCity = document.querySelector('#selectCity');
+        const selDistrict = document.querySelector('#selectDistrict');
+        const selRoad = document.querySelector('#selectRoad');
+        const theDiv = document.querySelector('#showDiv');
+
+
+        //=========改用 async awit 改寫
+        async function loadCity() {
+            try {
+                const response = await fetch('@Url.Content("/api/cities")');
+                const datas = await response.json();
+
+                const cities = datas.map(city => `<option value='${city}'>${city}</option>`);
+                selCity.innerHTML = cities.join("");
+
+                // =======解決一開始沒有預設值的問題
+                await loadDistrict();
+            } catch (error) {
+                console.error("Error loading cities:", error);
+            }
+        }
+
+        async function loadDistrict() {
+            try {
+                const response = await fetch(`@Url.Content("/api/districts")?city=${selCity.value}`);
+                const datas = await response.json();
+
+                const districts = datas.map(district => `<option value='${district}'>${district}</option>`);
+                selDistrict.innerHTML = districts.join("");
+
+                // =======解決一開始沒有預設值的問題
+                await loadRoad();
+            } catch (error) {
+                console.error("Error loading districts:", error);
+            }
+        }
+
+        async function loadRoad() {
+            try {
+                const response = await fetch(`@Url.Content("/api/roads")?siteId=${selDistrict.value}`);
+                const datas = await response.json();
+
+                const roads = datas.map(road => `<option value='${road}'>${road}</option>`);
+                selRoad.innerHTML = roads.join("");
+
+                // =======解決選取城市時不會在下方區塊即時改變的問題
+                show();
+            } catch (error) {
+                console.error("Error loading roads:", error);
+            }
+        }
+
+        function show() {
+            theDiv.textContent = `${selDistrict.value} ${selRoad.value}`;
+        }
+
+        (async function () {
+            await loadCity();
+
+            selCity.addEventListener('change', async () => {
+                await loadDistrict();
+            });
+
+            selDistrict.addEventListener('change', async () => {
+                await loadRoad();
+            });
+
+            // ==========上方的方法程式碼縮寫
+            selRoad.addEventListener('change', show);
+        })();
+    </script>
+}
+

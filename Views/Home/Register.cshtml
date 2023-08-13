@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>Register</h1>
+<p>
+    作業三 檢查帳號是否存在
+    在Register.cshtml中，使用者輸入姓名離開後，透過Ajax技術將姓名送到api/CheckAccount Action
+    在 CheckAccount Action 中檢查帳號是否存在，將檢查結果回傳給Client端顯示
+</p>
+<p>
+    作業五 選擇圖片上傳時先進行預覽
+</p>
+
+<div class="container">
+    <div class="row">
+        <div class="col-9">
+            @*<form action="~/api/GetDemo" method="get">*@
+            <form id="form1">
+                <div class="mb-3">
+                    <label for="textName" class="form-label">姓名</label>
+                    <!--name要跟Models底下的名稱取一樣-->
+                    <input type="text" class="form-control" id="textName" name="Name" onblur="checkDuplicateName()">
+                    <span id="duplicateMessage" style="display:none;color:red;" class="alert alert-danger">姓名已存在</span>
+                </div>
+                <div class="mb-3">
+                    <label for="textEmail" class="form-label">E-mail</label>
+                    <!--name要跟Models底下的名稱取一樣-->
+                    <input type="email" class="form-control" id="textEmail" name="Email">
+                </div>
+                <div class="mb-3">
+                    <label for="textAge" class="form-label">年齡</label>
+                    <!--name要跟Models底下的名稱取一樣-->
+                    <input type="text" class="form-control" id="textAge" name="Age">
+                </div>
+                <div class="mb-3">
+                    <!--name好像是跟 ApiController 底下的 IActionResult Register名稱一樣?-->
+                    <label for="formFile" class="form-label">檔案上傳</label>
+                    <input type="file" class="form-control" id="formFile" name="file">
+                </div>
+                <div class="mb-3">
+                    <img id="showImg" width="200" />
+                </div>
+                <button type="submit" class="btn btn-danger" id="button1">送出</button>
+            </form>
+        </div>
+        <div class="col-3">
+            <a href="https://www.yahoo.com.tw/" id="a1">YAHOO!</a>
+        </div>
+        <div id="div1"></div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+
+    </style>
+}
+
+@section Scripts {
+    <script>
+        const btn = document.querySelector('#button1');
+        const theA = document.querySelector('#a1');
+        const txtName = document.querySelector('#textName');
+        const theDiv = document.querySelector('#div1');
+
+
+        function checkDuplicateName() {
+            var name = txtName.value; //抓到使用者輸入的姓名
+
+            //===============打API驗證姓名是否已存在
+            //資料庫有的姓名：Jack、Mary、Nancy、Tom、Eric
+            $.ajax({
+                url: '/api/CheckDuplicateName',
+                type: 'GET',
+                data: { name: name },
+                success: function (result) {
+                    console.log(result)
+                    if (result.isDuplicate) { //如果等於true
+                        document.getElementById('duplicateMessage').style.display = 'block'; //顯示錯誤訊息
+                    } else {
+                        document.getElementById('duplicateMessage').style.display = 'none';
+                    }
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        //=============上傳圖片預覽功能
+        $('#formFile').on('change', function (e) {
+            //1 - createObjectURL 寫法
+            //const file = this.files[0];
+            //const objectURL = URL.createObjectURL(file);
+
+            //$('#showImg').attr('src', objectURL);
+
+
+
+
+            //2 - FileReader 寫法
+            const file = this.files[0];
+
+            const fr = new FileReader();
+            fr.onload = function (e) {
+                $('#showImg').attr('src', e.target.result);
+            };
+
+            // 使用 readAsDataURL 將圖片轉成 Base64
+            fr.readAsDataURL(file);
+        });
+
+
+
+        btn.addEventListener('click', event => {
+            event.preventDefault(); //防止預設行為的發生
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/Register'); //（新增會員到DB）
+
+            //==========FormData
+            const formData = new FormData(document.querySelector('#form1'));
+            xhr.send(formData);
+
+            xhr.addEventListener('load', () => {
+                const data = xhr.responseText;
+                theDiv.innerHTML = data; //將值顯示
+            })
+        })
+    </script>
+
+}
+
